@@ -1,214 +1,388 @@
-# 📊 Accounts Manager Application v1.0
+# Accounts Manager Application
 
-<div align="center">
+[![Version](https://img.shields.io/badge/version-1.0-blue.svg)](https://github.com/papilo-topato/AccountsManagerApplication)
+[![Android](https://img.shields.io/badge/platform-Android-green.svg)](https://developer.android.com/)
+[![Kotlin](https://img.shields.io/badge/language-Kotlin-purple.svg)](https://kotlinlang.org/)
+[![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-orange.svg)](https://developer.android.com/jetpack/compose)
 
-![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
-![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white)
-![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)
-![Material Design 3](https://img.shields.io/badge/Material%20Design%203-757575?style=for-the-badge&logo=materialdesign&logoColor=white)
-![Version](https://img.shields.io/badge/Version-1.0-green?style=for-the-badge)
+A comprehensive Android application for managing personal and business accounts with advanced transaction tracking, financial analytics, and data export capabilities.
 
-**A modern, offline-first Android application for managing personal and business accounts with comprehensive transaction tracking.**
+## 📋 Table of Contents
 
-**Developed by Raghram K S**
+- [Overview](#overview)
+- [Features](#features)
+- [Technical Architecture](#technical-architecture)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Documentation](#api-documentation)
+- [Database Schema](#database-schema)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
 
-[![GitHub stars](https://img.shields.io/github/stars/papilo-topato/AccountsManagerApplication?style=social)](https://github.com/papilo-topato/AccountsManagerApplication/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/papilo-topato/AccountsManagerApplication?style=social)](https://github.com/papilo-topato/AccountsManagerApplication/network)
-[![GitHub issues](https://img.shields.io/github/issues/papilo-topato/AccountsManagerApplication)](https://github.com/papilo-topato/AccountsManagerApplication/issues)
+## 🎯 Overview
 
-</div>
+**Developed by:** Raghram K S
 
-## 🚀 Features
+The Accounts Manager Application is a sophisticated financial management tool built with modern Android development practices. It provides users with comprehensive tools to track income, expenses, and financial analytics across multiple projects with advanced search, filtering, and export capabilities.
 
-### 💼 **Project Management**
-- **Multi-Project Support**: Create and manage multiple account projects
-- **Project Descriptions**: Add detailed descriptions for each project
-- **Project-Specific Views**: Dedicated screens for each project's transactions
-- **Project Trash System**: Move projects to trash with data cleanup
+### Key Highlights
 
-### 💰 **Transaction Management**
-- **Income & Expense Tracking**: Comprehensive financial transaction recording
-- **Editable Transactions**: Full CRUD operations for transaction management
-- **Date Selection**: Simple date picker (dd/MM/yyyy format)
-- **Built-in Calculator**: Integrated calculator for accurate amount entry
-- **Transaction Notes**: Add detailed notes to each transaction
-- **Indian Number Formatting**: Amounts displayed in Indian numbering system (₹34,56,789.00)
-- **Transaction Search**: Real-time search by title or amount
-- **Transaction Sorting**: Sort by newest/oldest transactions
+- **Modern Architecture**: Built with MVVM pattern using Jetpack Compose
+- **Advanced Search**: Real-time transaction search with multiple filter options
+- **Data Export**: CSV export functionality with customizable formats
+- **Indian Numbering System**: Native support for Indian currency formatting
+- **Offline First**: Complete offline functionality with Room database
+- **Material Design 3**: Modern, accessible UI following Material Design guidelines
 
-### 📊 **Financial Analytics**
-- **Real-time Balance Calculation**: Automatic running balance updates
-- **Credit/Debit Summaries**: Visual indicators with color coding
-- **Project Balance Overview**: Dashboard showing all project balances
-- **Collapsible Financial Summary**: Space-efficient financial overview
-- **Transaction History**: Complete transaction list with running balances
+## ✨ Features
 
-### 🎨 **Modern UI/UX**
-- **Material Design 3**: Latest Material Design implementation
-- **Dark/Light Theme**: Automatic theme switching with manual override
+### 🏢 Project Management
+- **Multi-Project Support**: Create and manage multiple financial projects
+- **Project Analytics**: Comprehensive financial summaries per project
+- **Project Export**: Individual project data export capabilities
+- **Project Trash**: Soft delete with recovery options
+
+### 💰 Transaction Management
+- **CRUD Operations**: Full Create, Read, Update, Delete functionality
+- **Transaction Types**: Support for Income (Credit) and Expense (Debit) transactions
+- **Date Management**: Editable transaction dates with dd/MM/yyyy format
+- **Transaction Search**: Real-time search by title, amount, or notes
+- **Advanced Filtering**: Filter by transaction type, date range, and amount
+- **Sorting Options**: Sort by date (newest/oldest) and amount
+
+### 📊 Financial Analytics
+- **Real-time Balance**: Live calculation of project balances
+- **Credit/Debit Totals**: Separate tracking of income and expenses
+- **Running Balance**: Historical balance tracking per transaction
+- **Financial Summary**: Collapsible financial overview cards
+- **Indian Number Formatting**: Native support for Indian numbering system (e.g., 34,56,789rs)
+
+### 🔍 Search & Filter
+- **Real-time Search**: Instant search across transaction titles, amounts, and notes
+- **Filter Types**: Search by title or amount with dedicated filter chips
+- **Search History**: Persistent search state across app sessions
+- **Empty State Handling**: User-friendly messages for no results
+
+### 📤 Data Export
+- **CSV Export**: Export project data to CSV format
+- **Multiple Export Types**: All projects or individual project exports
+- **Custom Formatting**: Date-only format (no time components)
+- **File Management**: Automatic file naming and organization
+- **Share Integration**: Native Android sharing capabilities
+
+### 🎨 User Interface
+- **Material Design 3**: Modern, accessible UI components
+- **Dark/Light Theme**: Automatic theme switching support
 - **Responsive Design**: Optimized for various screen sizes
-- **Jetpack Compose**: Modern declarative UI framework
-- **Intuitive Navigation**: Smooth navigation between screens
-- **Search Functionality**: Advanced search with filter options
+- **Accessibility**: Full accessibility support with content descriptions
+- **Smooth Animations**: Fluid transitions and micro-interactions
 
-### 📤 **Data Export & Sharing**
-- **CSV Export**: Export all projects or individual project data
-- **Date-Only Format**: Clean CSV exports without time columns
-- **Share Functionality**: Share exported files via email and other apps
-- **Notification Support**: Export completion notifications
-- **Comprehensive Data**: Complete transaction history with balances
+## 🏗️ Technical Architecture
 
-### 🛠️ **Developer Features**
-- **Crash Reporting**: Built-in crash logging and error tracking
-- **Log Viewer**: User-accessible log viewer for debugging
-- **Debug Information**: Comprehensive debugging tools
-- **Performance Monitoring**: Built-in performance tracking
+### Architecture Pattern
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   UI Layer      │    │  Business Logic │    │   Data Layer    │
+│                 │    │                 │    │                 │
+│ • Compose UI    │◄──►│ • ViewModels    │◄──►│ • Repository    │
+│ • Navigation    │    │ • Use Cases     │    │ • Room Database │
+│ • State Mgmt    │    │ • State Flow    │    │ • DAOs          │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
-### 🔒 **Privacy & Security**
-- **Offline-First**: No internet connection required
-- **Local Storage**: All data stored locally using Room database
-- **No Data Collection**: Zero external data sharing
-- **User Control**: Complete control over data export and sharing
+### Technology Stack
 
-## 📱 Screenshots
+#### Frontend
+- **UI Framework**: Jetpack Compose
+- **Navigation**: Navigation Compose
+- **State Management**: StateFlow, MutableStateFlow
+- **Material Design**: Material 3 Components
+- **Animations**: Compose Animation APIs
 
-<div align="center">
-
-| Dashboard | Project Detail | Transaction Edit |
-|-----------|----------------|------------------|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Project Detail](docs/screenshots/project_detail.png) | ![Transaction Edit](docs/screenshots/transaction_edit.png) |
-
-| Search & Filter | Export | Settings |
-|-----------------|--------|----------|
-| ![Search](docs/screenshots/search.png) | ![Export](docs/screenshots/export.png) | ![Settings](docs/screenshots/settings.png) |
-
-</div>
-
-## 🛠️ Technical Stack
-
-### **Architecture**
-- **MVVM Pattern**: Model-View-ViewModel architecture
-- **Repository Pattern**: Clean data access layer
+#### Backend
+- **Database**: Room (SQLite)
+- **Architecture**: MVVM (Model-View-ViewModel)
 - **Dependency Injection**: Manual DI with AppModule
-- **State Management**: StateFlow and Compose State
+- **Coroutines**: Kotlin Coroutines for async operations
+- **Flow**: Reactive data streams
 
-### **UI Framework**
-- **Jetpack Compose**: Modern declarative UI
-- **Material Design 3**: Latest design system
-- **Navigation Compose**: Type-safe navigation
-- **Compose State**: Reactive state management
+#### Data Management
+- **Local Storage**: Room Database
+- **Data Export**: CSV generation with custom formatting
+- **File Management**: Android FileProvider
+- **Notifications**: NotificationManager for export status
 
-### **Database**
-- **Room Database**: Local SQLite database
-- **Entity Relationships**: Proper foreign key relationships
-- **Data Migration**: Automatic schema migrations
-- **Type Converters**: Custom data type handling
+### Core Components
 
-### **Development Tools**
-- **Kotlin**: 100% Kotlin codebase
-- **Gradle**: Modern build system
-- **Android Studio**: Official IDE support
-- **Git**: Version control
+#### ViewModels
+- **ProjectListViewModel**: Manages project list and search
+- **ProjectDetailViewModel**: Handles project-specific operations and search
+- **TransactionEditViewModel**: Manages transaction CRUD operations
+- **CreateProjectViewModel**: Handles project creation
 
-## 📦 Installation
+#### Repositories
+- **ProjectRepository**: Project data operations
+- **TransactionRepository**: Transaction CRUD operations
+- **DeletedProjectRepository**: Trash management
 
-### **APK Download**
-Download the latest APK from the [Releases](https://github.com/papilo-topato/AccountsManagerApplication/releases) page.
+#### Database Entities
+- **ProjectEntity**: Project information and metadata
+- **TransactionEntity**: Transaction details and financial data
+- **CategoryEntity**: Transaction categorization (future feature)
+- **DeletedProjectEntity**: Soft delete tracking
 
-**APK Path**: `C:\Users\raghu\OneDrive\Desktop\Accounts - manager.apk`
+## 📱 Installation
 
-### **Installation Steps**
-1. **Enable Unknown Sources**:
-   - Go to Settings → Security → Unknown Sources
-   - Enable installation from unknown sources
+### Prerequisites
+- Android Studio Arctic Fox or later
+- Android SDK 24+ (Android 7.0)
+- Kotlin 1.8.0+
+- Gradle 7.0+
 
-2. **Download APK**:
-   - Download the APK file from the releases page
-   - Or use the provided APK path
+### Build Instructions
 
-3. **Install Application**:
-   - Tap on the downloaded APK file
-   - Follow the installation prompts
-   - Grant necessary permissions
-
-4. **Launch App**:
-   - Find "Accounts Manager" in your app drawer
-   - Tap to launch the application
-
-### **System Requirements**
-- **Android Version**: 8.0 (API 26) or higher
-- **Storage**: 50MB free space
-- **RAM**: 2GB recommended
-- **Permissions**: Storage access for exports
-
-## 🚀 Getting Started
-
-### **First Launch**
-1. **Create Your First Project**:
-   - Tap the "+" button on the dashboard
-   - Enter project name and description
-   - Tap "Save Project"
-
-2. **Add Transactions**:
-   - Open your project
-   - Tap "Income" or "Expense" buttons
-   - Fill in transaction details
-   - Save the transaction
-
-3. **Explore Features**:
-   - Use the search functionality
-   - Export your data
-   - Customize settings
-
-### **Basic Usage**
-1. **Project Management**:
-   - Create multiple projects for different accounts
-   - Add descriptions for better organization
-   - Use the trash system for cleanup
-
-2. **Transaction Recording**:
-   - Record income and expenses
-   - Use the built-in calculator
-   - Add notes for context
-   - Edit transactions as needed
-
-3. **Data Analysis**:
-   - View real-time balances
-   - Check credit/debit summaries
-   - Use search to find specific transactions
-
-4. **Data Export**:
-   - Export individual projects
-   - Export all projects at once
-   - Share data via email or other apps
-
-## 🔧 Development
-
-### **Prerequisites**
-- Android Studio Arctic Fox (2020.3.1) or later
-- Android SDK 26 (Android 8.0) or higher
-- Kotlin 1.9.0 or later
-- Git
-
-### **Setup**
-1. **Clone Repository**:
+1. **Clone the repository**
    ```bash
    git clone https://github.com/papilo-topato/AccountsManagerApplication.git
    cd AccountsManagerApplication
    ```
 
-2. **Open in Android Studio**:
-   - Open Android Studio
-   - Select "Open an existing project"
-   - Navigate to the cloned directory
+2. **Open in Android Studio**
+   - Launch Android Studio
+   - Open the project directory
    - Wait for Gradle sync to complete
 
-3. **Build and Run**:
+3. **Build the project**
    ```bash
    ./gradlew assembleDebug
    ```
 
-### **Project Structure**
+4. **Install on device**
+   ```bash
+   ./gradlew installDebug
+   ```
+
+### APK Download
+- **Debug APK**: Available in `app/build/outputs/apk/debug/`
+- **Release APK**: Build with `./gradlew assembleRelease`
+
+## 🚀 Usage
+
+### Getting Started
+
+1. **Launch the Application**
+   - Open the app from your device's app drawer
+   - The app will start with the dashboard screen
+
+2. **Create Your First Project**
+   - Tap the "+" button to create a new project
+   - Enter project name and optional description
+   - Tap "Save Project"
+
+3. **Add Transactions**
+   - Open a project to view its details
+   - Tap "Income" or "Expense" buttons
+   - Fill in transaction details (amount, title, date, notes)
+   - Tap "Save Transaction"
+
+### Advanced Features
+
+#### Search and Filter
+1. **Enable Search**
+   - Tap the search icon in the project detail screen
+   - Choose filter type (Title or Amount)
+   - Type your search query
+
+2. **Filter Options**
+   - **Title Filter**: Search transaction titles
+   - **Amount Filter**: Search by transaction amounts
+   - **Real-time Results**: Results update as you type
+
+#### Data Export
+1. **Export Project Data**
+   - Open a project
+   - Tap the export icon (upload symbol)
+   - Grant notification permissions if prompted
+   - Choose sharing method (email, cloud storage, etc.)
+
+2. **Export All Projects**
+   - Use the main dashboard export option
+   - Select export format and destination
+
+#### Transaction Management
+1. **Edit Transactions**
+   - Tap any transaction in the list
+   - Modify amount, title, date, or notes
+   - Tap "Save Transaction"
+
+2. **Delete Transactions**
+   - Tap a transaction to edit
+   - Tap the delete icon
+   - Confirm deletion
+
+## 📚 API Documentation
+
+### ViewModels
+
+#### ProjectDetailViewModel
+```kotlin
+class ProjectDetailViewModel {
+    // State flows
+    val project: StateFlow<ProjectEntity?>
+    val transactions: StateFlow<List<TransactionEntity>>
+    val totalCredit: StateFlow<Long>
+    val totalDebit: StateFlow<Long>
+    val runningBalance: StateFlow<Long>
+    
+    // Search functionality
+    val isSearchActive: StateFlow<Boolean>
+    val searchQuery: StateFlow<String>
+    val searchFilter: StateFlow<SearchFilter>
+    val filteredTransactions: StateFlow<List<TransactionEntity>>
+    
+    // Control functions
+    fun onToggleSearch()
+    fun onSearchQueryChange(query: String)
+    fun setSearchFilter(filter: SearchFilter)
+}
+```
+
+#### TransactionEditViewModel
+```kotlin
+class TransactionEditViewModel {
+    // State flows
+    val amount: StateFlow<String>
+    val title: StateFlow<String>
+    val notes: StateFlow<String>
+    val date: StateFlow<String>
+    
+    // Mode detection
+    val isEditMode: Boolean
+    val isIncome: Boolean
+    
+    // Control functions
+    fun onAmountChange(value: String)
+    fun onTitleChange(value: String)
+    fun onNotesChange(value: String)
+    fun onDateChange(value: String)
+    fun saveTransaction()
+    fun deleteTransaction()
+    fun isValid(): Boolean
+}
+```
+
+### Repositories
+
+#### TransactionRepository
+```kotlin
+class TransactionRepository {
+    // Observation methods
+    fun observeTransactions(projectId: Long): Flow<List<TransactionEntity>>
+    fun observeTransactionById(id: Long): Flow<TransactionEntity?>
+    
+    // CRUD operations
+    suspend fun addIncome(projectId: Long, amountMinor: Long, title: String, 
+                         timestampEpochMs: Long, notes: String?): Long
+    suspend fun addExpense(projectId: Long, amountMinor: Long, title: String, 
+                          timestampEpochMs: Long, notes: String?): Long
+    suspend fun update(entity: TransactionEntity)
+    suspend fun delete(entity: TransactionEntity)
+}
+```
+
+### Database Schema
+
+#### ProjectEntity
+```kotlin
+@Entity(tableName = "projects")
+data class ProjectEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val description: String?,
+    val createdAt: Long = System.currentTimeMillis(),
+    val displayOrder: Int = 0
+)
+```
+
+#### TransactionEntity
+```kotlin
+@Entity(tableName = "transactions")
+data class TransactionEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val projectId: Long,
+    val title: String,
+    val notes: String?,
+    val creditAmount: Long = 0,
+    val debitAmount: Long = 0,
+    val timestampEpochMs: Long = System.currentTimeMillis(),
+    val categoryId: Long? = null
+)
+```
+
+### Utility Classes
+
+#### CsvExportUtil
+```kotlin
+object CsvExportUtil {
+    fun generateAllProjectsCsv(
+        projects: List<ProjectBalanceRow>,
+        transactionsByProject: Map<Long, List<TransactionEntity>>
+    ): String
+    
+    fun generateSingleProjectCsv(
+        project: ProjectEntity,
+        transactions: List<TransactionEntity>
+    ): String
+}
+```
+
+#### Formatters
+```kotlin
+object Formatters {
+    fun formatCurrencyMinor(amountMinor: Long): String
+    private fun formatIndianNumber(number: Long): String
+}
+```
+
+## 🗄️ Database Schema
+
+### Tables
+
+#### Projects Table
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INTEGER PRIMARY KEY | Auto-generated project ID |
+| name | TEXT NOT NULL | Project name |
+| description | TEXT | Optional project description |
+| created_at | INTEGER | Creation timestamp |
+| display_order | INTEGER | Sort order for projects |
+
+#### Transactions Table
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INTEGER PRIMARY KEY | Auto-generated transaction ID |
+| project_id | INTEGER NOT NULL | Foreign key to projects table |
+| title | TEXT NOT NULL | Transaction title |
+| notes | TEXT | Optional transaction notes |
+| credit_amount | INTEGER | Credit amount in minor units (paise) |
+| debit_amount | INTEGER | Debit amount in minor units (paise) |
+| timestamp_epoch_ms | INTEGER | Transaction timestamp |
+| category_id | INTEGER | Optional category reference |
+
+### Relationships
+- **One-to-Many**: Project → Transactions
+- **Foreign Key**: transactions.project_id → projects.id
+- **Cascade Delete**: Deleting a project removes all its transactions
+
+### Indexes
+- **Primary Keys**: All tables have auto-incrementing primary keys
+- **Foreign Keys**: project_id is indexed for efficient joins
+- **Timestamps**: timestamp_epoch_ms is indexed for sorting
+
+## 🛠️ Development
+
+### Project Structure
 ```
 app/
 ├── src/main/java/com/example/accountsmanagerapplication/
@@ -216,161 +390,94 @@ app/
 │   │   ├── dao/                 # Data Access Objects
 │   │   ├── repo/                # Repository implementations
 │   │   └── *.kt                 # Entity classes
-│   ├── di/                      # Dependency injection
-│   ├── navigation/              # Navigation setup
+│   ├── di/                      # Dependency Injection
+│   ├── navigation/              # Navigation components
 │   ├── ui/                      # UI layer
 │   │   ├── *.kt                 # Composable screens
-│   │   └── theme/               # Theme configuration
+│   │   └── theme/               # Theme and styling
 │   ├── util/                    # Utility classes
-│   └── MainActivity.kt          # Main activity
+│   └── MainActivity.kt          # Application entry point
 ├── src/main/res/                # Resources
-└── build.gradle.kts            # Build configuration
+│   ├── drawable/                # Icons and images
+│   ├── layout/                  # XML layouts (if any)
+│   └── values/                  # Strings, colors, themes
+└── build.gradle.kts             # Module build configuration
 ```
 
-### **Key Components**
-- **MainActivity**: Application entry point
-- **NavGraph**: Navigation configuration
-- **ViewModels**: Business logic and state management
-- **Repositories**: Data access abstraction
-- **DAOs**: Database access objects
-- **Entities**: Data models
+### Key Dependencies
+```kotlin
+// Core Android
+implementation("androidx.core:core-ktx:1.10.1")
+implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
 
-## 📊 Database Schema
+// Compose
+implementation("androidx.activity:activity-compose:1.7.2")
+implementation("androidx.compose.ui:ui:1.4.3")
+implementation("androidx.compose.material3:material3:1.1.1")
 
-### **Projects Table**
-```sql
-CREATE TABLE projects (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description TEXT,
-    created_at_epoch_ms INTEGER NOT NULL,
-    display_order INTEGER DEFAULT 0
-);
+// Navigation
+implementation("androidx.navigation:navigation-compose:2.6.0")
+
+// Room Database
+implementation("androidx.room:room-runtime:2.5.0")
+implementation("androidx.room:room-ktx:2.5.0")
+kapt("androidx.room:room-compiler:2.5.0")
 ```
 
-### **Transactions Table**
-```sql
-CREATE TABLE transactions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    project_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    notes TEXT,
-    credit_amount INTEGER DEFAULT 0,
-    debit_amount INTEGER DEFAULT 0,
-    timestamp_epoch_ms INTEGER NOT NULL,
-    category_id INTEGER,
-    FOREIGN KEY (project_id) REFERENCES projects (id)
-);
-```
+### Build Configuration
+- **Target SDK**: 34 (Android 14)
+- **Min SDK**: 24 (Android 7.0)
+- **Compile SDK**: 34
+- **Kotlin Version**: 1.8.0
+- **Gradle Version**: 8.0
 
-## 🎯 Features in Detail
-
-### **Transaction Management**
-- **CRUD Operations**: Create, Read, Update, Delete transactions
-- **Search Functionality**: Search by title or amount
-- **Date Editing**: Editable transaction dates
-- **Amount Formatting**: Indian numbering system (34,56,789)
-- **Transaction Validation**: Input validation and error handling
-
-### **Project Management**
-- **Multi-Project**: Support for unlimited projects
-- **Project Descriptions**: Detailed project information
-- **Project Trash**: Safe project deletion with data cleanup
-- **Project Export**: Individual project data export
-
-### **Financial Analytics**
-- **Real-time Calculations**: Automatic balance updates
-- **Visual Indicators**: Color-coded credit/debit amounts
-- **Running Balances**: Transaction-by-transaction balance tracking
-- **Summary Views**: Project-level financial summaries
-
-### **Data Export**
-- **CSV Format**: Standard CSV export format
-- **Date-Only**: Clean exports without time columns
-- **Comprehensive Data**: Complete transaction history
-- **Share Integration**: Native Android sharing
-
-## 🔒 Privacy & Security
-
-### **Data Protection**
-- **Local Storage**: All data stored locally
-- **No Cloud Sync**: No external data transmission
-- **User Control**: Complete control over data
-- **Export Only**: Data sharing only when user initiates
-
-### **Permissions**
-- **Storage**: Required for CSV export functionality
-- **Notifications**: Optional for export notifications
-- **No Network**: No internet permissions required
+### Code Style
+- **Kotlin Coding Conventions**: Follow official Kotlin style guide
+- **Compose Guidelines**: Follow Jetpack Compose best practices
+- **Architecture**: MVVM with Repository pattern
+- **Naming**: camelCase for variables, PascalCase for classes
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
+### Development Setup
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes following the coding standards
+4. Test your changes thoroughly
+5. Commit your changes: `git commit -m 'Add amazing feature'`
+6. Push to the branch: `git push origin feature/amazing-feature`
+7. Open a Pull Request
 
-1. **Fork the repository**
-2. **Create a feature branch**:
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Commit your changes**:
-   ```bash
-   git commit -m 'Add amazing feature'
-   ```
-4. **Push to the branch**:
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-5. **Open a Pull Request**
+### Code Review Process
+- All changes require code review
+- Ensure all tests pass
+- Follow the established architecture patterns
+- Update documentation for new features
+- Maintain backward compatibility
 
-### **Development Guidelines**
-- Follow **Kotlin coding conventions**
-- Use **Material Design 3** principles
-- Write **unit tests** for new features
-- Update **documentation** as needed
-- Ensure **backward compatibility**
+### Reporting Issues
+- Use GitHub Issues for bug reports
+- Provide detailed reproduction steps
+- Include device information and Android version
+- Attach relevant logs if possible
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 Developer
-
-**Raghram K S**
-- **GitHub**: [@raghramks](https://github.com/raghramks)
-- **Project**: [Accounts Manager Application](https://github.com/papilo-topato/AccountsManagerApplication)
-- **Version**: v1.0 (Completed)
-
 ## 🙏 Acknowledgments
 
-- **Jetpack Compose** team for the amazing UI framework
-- **Material Design** team for the design system
-- **Android** community for continuous support
-- **Open source contributors** who made this possible
+- **Material Design Team** for the comprehensive design system
+- **Jetpack Compose Team** for the modern UI toolkit
+- **Android Room Team** for the excellent database abstraction
+- **Kotlin Team** for the powerful programming language
 
-## 📈 Roadmap
+## 📞 Support
 
-### **Version 1.1 (Planned)**
-- [ ] Custom categories management
-- [ ] Bulk operations (multi-select, bulk delete)
-- [ ] Advanced search filters
-- [ ] Data backup and restore
-- [ ] Widget support
-
-### **Version 1.2 (Future)**
-- [ ] Advanced reporting and analytics
-- [ ] Multi-currency support
-- [ ] Budget tracking features
-- [ ] Cloud synchronization
-- [ ] Wear OS companion app
+For support, email raghramks@example.com or create an issue in the GitHub repository.
 
 ---
 
-<div align="center">
-
-**⭐ Star this repository if you find it helpful!**
-
-[![GitHub stars](https://img.shields.io/github/stars/papilo-topato/AccountsManagerApplication?style=social)](https://github.com/papilo-topato/AccountsManagerApplication/stargazers)
-
-**Made with ❤️ by [Raghram K S](https://github.com/raghramks)**
-
-</div>
+**Version**: 1.0  
+**Last Updated**: December 2024  
+**Maintainer**: Raghram K S
