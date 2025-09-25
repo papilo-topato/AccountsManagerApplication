@@ -40,6 +40,7 @@ fun EditProjectDialog(
     
     val name by viewModel.name.collectAsState()
     val description by viewModel.description.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -62,7 +63,16 @@ fun EditProjectDialog(
                         onValueChange = viewModel::onNameChange,
                         label = { Text("Project Name") },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errorMessage != null,
+                        supportingText = {
+                            if (errorMessage != null) {
+                                Text(
+                                    text = errorMessage!!,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
                     )
                     
                     Spacer(modifier = Modifier.padding(12.dp))
@@ -80,10 +90,13 @@ fun EditProjectDialog(
             Button(
                 onClick = {
                     viewModel.updateProject(project.id)
-                    onProjectUpdated()
-                    onDismissRequest()
+                    // Only close dialog if there's no error
+                    if (viewModel.errorMessage.value == null) {
+                        onProjectUpdated()
+                        onDismissRequest()
+                    }
                 },
-                enabled = name.isNotBlank()
+                enabled = name.isNotBlank() && errorMessage == null
             ) {
                 Text("Save Changes")
             }

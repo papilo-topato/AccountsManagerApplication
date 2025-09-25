@@ -19,9 +19,14 @@ class CreateProjectViewModel(application: Application) : AndroidViewModel(applic
 
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> = _description.asStateFlow()
-
+    
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+    
     fun onNameChange(value: String) {
         _name.value = value
+        // Clear previous error when user starts typing
+        _errorMessage.value = null
     }
 
     fun onDescriptionChange(value: String) {
@@ -35,8 +40,19 @@ class CreateProjectViewModel(application: Application) : AndroidViewModel(applic
         val currentName = _name.value.trim()
         val currentDescription = _description.value.trim().ifEmpty { null }
         if (currentName.isBlank()) return
+        
+        _errorMessage.value = null // Clear previous error
+        
         viewModelScope.launch {
-            projectRepository.createProject(currentName, currentDescription)
+            try {
+                projectRepository.createProject(currentName, currentDescription)
+                // Success - clear form
+                resetForm()
+            } catch (e: IllegalArgumentException) {
+                _errorMessage.value = e.message
+            } catch (e: Exception) {
+                _errorMessage.value = "Failed to create project: ${e.message}"
+            }
         }
     }
 
@@ -49,16 +65,32 @@ class CreateProjectViewModel(application: Application) : AndroidViewModel(applic
         val currentName = _name.value.trim()
         val currentDescription = _description.value.trim().ifEmpty { null }
         if (currentName.isBlank()) return
+        
+        _errorMessage.value = null // Clear previous error
+        
         viewModelScope.launch {
-            val project = ProjectEntity(
-                id = projectId,
-                name = currentName,
-                description = currentDescription
-            )
-            projectRepository.updateProject(project)
+            try {
+                val project = ProjectEntity(
+                    id = projectId,
+                    name = currentName,
+                    description = currentDescription
+                )
+                projectRepository.updateProject(project)
+                // Success - clear form
+                resetForm()
+            } catch (e: Exception) {
+                _errorMessage.value = "Failed to update project: ${e.message}"
+            }
         }
     }
+    
+    fun resetForm() {
+        _name.value = ""
+        _description.value = ""
+        _errorMessage.value = null
+    }
+    
+    fun clearError() {
+        _errorMessage.value = null
+    }
 }
-
-
-

@@ -81,7 +81,10 @@ fun CreateProjectDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismissRequest) {
+            TextButton(onClick = {
+                viewModel.resetForm()
+                onDismissRequest()
+            }) {
                 Text("Cancel")
             }
         }

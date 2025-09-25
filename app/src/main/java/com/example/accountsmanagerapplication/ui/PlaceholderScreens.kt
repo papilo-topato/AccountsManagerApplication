@@ -73,8 +73,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.example.accountsmanagerapplication.util.ExporterService
 import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.compose.runtime.rememberCoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -142,12 +151,13 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
     var showAddTransactionDialog by remember { mutableStateOf(false) }
     var transactionType by remember { mutableStateOf("income") }
     var sortOrder by remember { mutableStateOf("newest") } // "newest" or "oldest"
-    var showEditProjectDialog by remember { mutableStateOf(false) }
-    var showDeleteProjectDialog by remember { mutableStateOf(false) }
     
     // Collapsible header state
     var isFinancialSummaryExpanded by remember { mutableStateOf(true) }
     val listState = rememberLazyListState()
+    
+    // Description popup state
+    var showDescriptionPopup by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -167,49 +177,70 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(start = 8.dp)
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .clickable { 
+                                    if (!project?.description.isNullOrBlank()) {
+                                        showDescriptionPopup = true
+                                    }
+                                }
                         )
                     }
                 },
                 actions = {
                     val context = LocalContext.current
-                    val shareLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
+                    val scope = rememberCoroutineScope()
+                    
+                    // Launcher for the notification permission
+                    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.RequestPermission()
+                    ) { isGranted: Boolean ->
+                        if (isGranted) {
+                            Toast.makeText(context, "Permission granted. You can now receive export notifications.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Permission denied. Notifications will not be shown.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                     
                     IconButton(onClick = {
-                        project?.let { currentProject ->
-                            try {
-                                android.util.Log.d("ProjectExportDebug", "Starting CSV export for project: ${currentProject.name}")
-                                val csv = CsvExportUtil.generateSingleProjectCsv(currentProject, transactions)
-                                android.util.Log.d("ProjectExportDebug", "Generated CSV: ${csv.length} characters")
+                        // The export logic
+                        val projectValue = project // Get the current state value
+                        val transactionsValue = transactions
 
-                                // Save to cache for sharing
-                            val cacheDir = File(context.cacheDir, "exports").apply { mkdirs() }
-                                val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.getDefault()).format(java.util.Date())
-                                val fileName = "${currentProject.name.replace(" ", "_")}_export_$timestamp.csv"
-                                val file = File(cacheDir, fileName)
-                            file.writeText(csv)
-                                android.util.Log.d("ProjectExportDebug", "File saved to: ${file.absolutePath}")
+                        if (projectValue != null && transactionsValue.isNotEmpty()) {
+                            val exportAction = {
+                                scope.launch(Dispatchers.IO) {
+                                    val csvContent = CsvExportUtil.generateSingleProjectCsv(projectValue, transactionsValue)
+                                    val exporterService = ExporterService(context)
+                                    withContext(Dispatchers.Main) {
+                                       exporterService.exportProject(projectValue.name, csvContent)
+                                    }
+                                }
+                            }
 
-                            val uri = FileProvider.getUriForFile(context, context.packageName + ".fileprovider", file)
-                            val intent = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/csv"
-                                putExtra(Intent.EXTRA_STREAM, uri)
-                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            // Check for notification permission on Android 13+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                when (ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)) {
+                                    PackageManager.PERMISSION_GRANTED -> {
+                                        // Permission is already granted, proceed with export
+                                        exportAction()
+                                    }
+                                    else -> {
+                                        // Permission is not granted, request it
+                                        notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                        // Note: You might want to handle the case where the user grants permission
+                                        // by re-triggering the export inside the launcher's callback.
+                                    }
+                                }
+                            } else {
+                                // For older versions, no special permission is needed to post notifications
+                                exportAction()
                             }
-                                shareLauncher.launch(Intent.createChooser(intent, "Export Project CSV"))
-                                android.util.Log.d("ProjectExportDebug", "Share intent launched successfully")
-                            } catch (e: Exception) {
-                                android.util.Log.e("ProjectExportError", "CSV export failed", e)
-                            }
+                        } else {
+                            Toast.makeText(context, "No data to export.", Toast.LENGTH_SHORT).show()
                         }
                     }) {
-                        Icon(Icons.Default.Upload, contentDescription = "Export")
-                    }
-                    IconButton(onClick = { showEditProjectDialog = true }) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit Project")
-                    }
-                    IconButton(onClick = { showDeleteProjectDialog = true }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete Project")
+                        Icon(Icons.Default.Upload, contentDescription = "Export Project")
                     }
                 }
             )
@@ -220,24 +251,6 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Project Description (if available)
-            if (!project?.description.isNullOrBlank()) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                Text(
-                        text = project?.description ?: "",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-            }
 
             // Track scroll position to auto-expand when scrolling back to top
             LaunchedEffect(listState.firstVisibleItemIndex) {
@@ -538,31 +551,32 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
         }
     }
 
-    // Edit Project Dialog
-    project?.let { currentProject ->
-        if (showEditProjectDialog) {
-            EditProjectDialog(
-                project = currentProject,
-                onDismissRequest = { showEditProjectDialog = false },
-                onProjectUpdated = { /* Project will be updated automatically via StateFlow */ }
-            )
-        }
+    // Description Popup
+    if (showDescriptionPopup && !project?.description.isNullOrBlank()) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showDescriptionPopup = false },
+            title = { 
+                Text(
+                    text = project?.name ?: "Project",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = project?.description ?: "",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { showDescriptionPopup = false }
+                ) {
+                    Text("Close")
+                }
+            }
+        )
     }
 
-    // Delete Project Dialog
-    project?.let { currentProject ->
-        if (showDeleteProjectDialog) {
-            DeleteProjectDialog(
-                project = currentProject,
-                onDismissRequest = { showDeleteProjectDialog = false },
-                onConfirmDelete = {
-                    // TODO: Implement delete functionality
-                    // For now, just navigate back
-                    navController.popBackStack()
-                }
-            )
-        }
-    }
 }
 
 @Composable

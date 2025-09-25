@@ -18,8 +18,14 @@ class ProjectRepository(
     fun observeProject(projectId: Long): Flow<ProjectEntity> = projectDao.observeProject(projectId)
 
     suspend fun createProject(name: String, description: String?): Long {
-        val entity = ProjectEntity(name = name, description = description)
-        return projectDao.insert(entity)
+        val entity = ProjectEntity(
+            name = name.trim(),
+            description = description?.trim(),
+            // CRITICAL: Set the displayOrder to 0 for the new top item
+            displayOrder = 0,
+            createdAtEpochMs = System.currentTimeMillis()
+        )
+        return projectDao.insertProjectAtTop(entity)
     }
 
     suspend fun updateProject(entity: ProjectEntity) {
@@ -28,6 +34,26 @@ class ProjectRepository(
 
     suspend fun deleteProject(entity: ProjectEntity) {
         projectDao.delete(entity)
+    }
+    
+    suspend fun updateProjectOrder(projectId: Long, order: Int) {
+        projectDao.updateDisplayOrder(projectId, order)
+    }
+    
+    suspend fun getProjectById(id: Long): ProjectEntity? {
+        return projectDao.getProjectById(id)
+    }
+    
+    suspend fun updateProjects(projects: List<ProjectEntity>) {
+        projectDao.updateProjects(projects)
+    }
+    
+    suspend fun getProjectByName(name: String): ProjectEntity? {
+        return projectDao.getProjectByName(name)
+    }
+    
+    suspend fun findProjectByNameExcludingId(name: String, excludeId: Long): ProjectEntity? {
+        return projectDao.findProjectByNameExcludingId(name, excludeId)
     }
 }
 

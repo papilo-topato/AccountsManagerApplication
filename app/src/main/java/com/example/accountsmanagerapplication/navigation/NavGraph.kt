@@ -11,6 +11,7 @@ import com.example.accountsmanagerapplication.ui.DashboardScreen
 import com.example.accountsmanagerapplication.ui.ProjectDetailScreen
 import com.example.accountsmanagerapplication.ui.TransactionEditScreen
 import com.example.accountsmanagerapplication.ui.LogViewerScreen
+import com.example.accountsmanagerapplication.ui.TrashScreen
 
 sealed interface Destinations {
     data object Dashboard : Destinations { const val route = "dashboard" }
@@ -20,6 +21,7 @@ sealed interface Destinations {
     data object AddTransaction : Destinations { const val route = "project/{projectId}/add_transaction?type={transactionType}" }
     data object EditTransaction : Destinations { const val route = "project/{projectId}/edit_transaction/{transactionId}" }
     data object LogViewer : Destinations { const val route = "log_viewer" }
+    data object Trash : Destinations { const val route = "trash" }
 }
 
 @Composable
@@ -70,6 +72,10 @@ fun AppNavHost(startDestination: String = Destinations.Dashboard.route) {
         
         composable(Destinations.LogViewer.route) {
             LogViewerScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        
+        composable(Destinations.Trash.route) {
+            TrashScreen(navController = navController)
         }
     }
 }

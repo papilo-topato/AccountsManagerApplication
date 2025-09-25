@@ -8,6 +8,7 @@ import com.example.accountsmanagerapplication.data.ProjectEntity
 import com.example.accountsmanagerapplication.data.dao.ProjectBalanceRow
 import com.example.accountsmanagerapplication.data.repo.ProjectRepository
 import com.example.accountsmanagerapplication.data.repo.TransactionRepository
+import com.example.accountsmanagerapplication.data.repo.DeletedProjectRepository
 import com.example.accountsmanagerapplication.di.AppModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,6 +21,7 @@ class ProjectListViewModel(application: Application) : AndroidViewModel(applicat
     private val db = AppModule.provideDatabase(application)
     private val projectRepository = AppModule.provideProjectRepository(AppModule.provideProjectDao(db))
     private val transactionRepository = AppModule.provideTransactionRepository(AppModule.provideTransactionDao(db))
+    private val deletedProjectRepository = AppModule.provideDeletedProjectRepository(AppModule.provideDeletedProjectDao(db))
 
     val projects: StateFlow<List<ProjectEntity>> =
         projectRepository.observeProjects()
@@ -29,9 +31,25 @@ class ProjectListViewModel(application: Application) : AndroidViewModel(applicat
         transactionRepository.observeProjectBalances()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+
     fun addProject(name: String, description: String?) {
         viewModelScope.launch {
             projectRepository.createProject(name, description)
+        }
+    }
+
+    fun moveProjectToTrash(project: ProjectEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // First, delete all transactions for this project
+                transactionRepository.deleteTransactionsForProject(project.id)
+                // Then move the project to trash
+                deletedProjectRepository.moveToTrash(project)
+                // Finally, delete the project from the main table
+                projectRepository.deleteProject(project)
+            } catch (e: Exception) {
+                android.util.Log.e("ProjectListViewModel", "Failed to move project to trash", e)
+            }
         }
     }
 
@@ -41,6 +59,7 @@ class ProjectListViewModel(application: Application) : AndroidViewModel(applicat
         val grouped = allTxns.groupBy { it.projectId }
         return balances to grouped
     }
+    
 }
 
 data class ProjectSummary(
@@ -49,6 +68,7 @@ data class ProjectSummary(
     val totalDebit: Long,
     val balance: Long
 )
+
 
 class ProjectDetailViewModel(
     application: Application,

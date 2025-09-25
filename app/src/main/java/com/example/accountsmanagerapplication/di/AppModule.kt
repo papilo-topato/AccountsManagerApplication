@@ -6,9 +6,11 @@ import com.example.accountsmanagerapplication.data.AppDatabase
 import com.example.accountsmanagerapplication.data.dao.CategoryDao
 import com.example.accountsmanagerapplication.data.dao.ProjectDao
 import com.example.accountsmanagerapplication.data.dao.TransactionDao
+import com.example.accountsmanagerapplication.data.dao.DeletedProjectDao
 import com.example.accountsmanagerapplication.data.repo.CategoryRepository
 import com.example.accountsmanagerapplication.data.repo.ProjectRepository
 import com.example.accountsmanagerapplication.data.repo.TransactionRepository
+import com.example.accountsmanagerapplication.data.repo.DeletedProjectRepository
 
 object AppModule {
     @Volatile
@@ -20,7 +22,15 @@ object AppModule {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "accounts_manager.db"
-            ).build().also { database = it }
+            )
+            .addMigrations(
+                androidx.room.migration.Migration(2, 3) { database ->
+                    // Add display_order column to projects table
+                    database.execSQL("ALTER TABLE projects ADD COLUMN display_order INTEGER NOT NULL DEFAULT 0")
+                }
+            )
+            .fallbackToDestructiveMigration() // Fallback for development
+            .build().also { database = it }
         }
     }
 
@@ -30,6 +40,8 @@ object AppModule {
 
     fun provideCategoryDao(db: AppDatabase): CategoryDao = db.categoryDao()
 
+    fun provideDeletedProjectDao(db: AppDatabase): DeletedProjectDao = db.deletedProjectDao()
+
     fun provideProjectRepository(projectDao: ProjectDao): ProjectRepository =
         ProjectRepository(projectDao)
 
@@ -38,6 +50,9 @@ object AppModule {
 
     fun provideCategoryRepository(categoryDao: CategoryDao): CategoryRepository =
         CategoryRepository(categoryDao)
+
+    fun provideDeletedProjectRepository(deletedProjectDao: DeletedProjectDao): DeletedProjectRepository =
+        DeletedProjectRepository(deletedProjectDao)
 }
 
 

@@ -1,4 +1,4 @@
-# 📊 Accounts Manager Application
+# 📊 Accounts Manager Application v1.0
 
 <div align="center">
 
@@ -6,12 +6,15 @@
 ![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white)
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)
 ![Material Design 3](https://img.shields.io/badge/Material%20Design%203-757575?style=for-the-badge&logo=materialdesign&logoColor=white)
+![Version](https://img.shields.io/badge/Version-1.0-green?style=for-the-badge)
 
 **A modern, offline-first Android application for managing personal and business accounts with comprehensive transaction tracking.**
 
-[![GitHub stars](https://img.shields.io/github/stars/papilo-topato/AccountsManagerApplication?style=social)](https://github.com/papilo-topato/AccountsManagerApplication/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/papilo-topato/AccountsManagerApplication?style=social)](https://github.com/papilo-topato/AccountsManagerApplication/network)
-[![GitHub issues](https://img.shields.io/github/issues/papilo-topato/AccountsManagerApplication)](https://github.com/papilo-topato/AccountsManagerApplication/issues)
+**Developed by Raghram K S**
+
+[![GitHub stars](https://img.shields.io/github/stars/raghramks/AccountsManagerApplication?style=social)](https://github.com/raghramks/AccountsManagerApplication/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/raghramks/AccountsManagerApplication?style=social)](https://github.com/raghramks/AccountsManagerApplication/network)
+[![GitHub issues](https://img.shields.io/github/issues/raghramks/AccountsManagerApplication)](https://github.com/raghramks/AccountsManagerApplication/issues)
 
 </div>
 
@@ -28,6 +31,9 @@
 - **Date & Time Picker**: Precise transaction timestamping
 - **Built-in Calculator**: Integrated calculator for accurate amount entry
 - **Transaction Notes**: Add detailed notes to each transaction
+- **Indian Number Formatting**: Amounts displayed in Indian numbering system (₹34,56,789.00)
+- **Transaction Editing**: Full CRUD operations for all transactions
+- **Bulk Operations**: Multi-select and bulk delete functionality
 
 ### 📊 **Financial Analytics**
 - **Real-time Balance Calculation**: Automatic running balance computation
@@ -47,6 +53,7 @@
 - **Project-Specific Exports**: Individual project data export
 - **All-Projects Export**: Comprehensive data export across all projects
 - **Share Functionality**: Easy sharing via email or other apps
+- **Excel-Compatible Format**: CSV files work seamlessly with Excel and Google Sheets
 
 ### 🛡️ **Crash Reporting & Debugging**
 - **Automatic Crash Logging**: Comprehensive error tracking and reporting
@@ -157,19 +164,27 @@ interface ProjectRepository {
 
 </div>
 
-## 🚀 Getting Started
+## 📱 Download & Installation
 
-### **Prerequisites**
-- Android Studio Arctic Fox (2020.3.1) or later
-- Android SDK 26 (Android 8.0) or higher
-- Kotlin 1.9.0 or later
-- Gradle 8.0 or later
+### **APK Download**
+**Ready-to-install APK available:**
+- **Location**: `C:\Users\raghu\OneDrive\Desktop\Accounts - manager.apk`
+- **Version**: v1.0 (Latest)
+- **Size**: ~8MB
+- **Requirements**: Android 8.0 (API 26) or higher
 
-### **Installation**
+### **Installation Steps**
+1. **Download the APK** from the location above
+2. **Enable "Install from Unknown Sources"** in your Android device settings
+3. **Transfer APK** to your Android device
+4. **Install** by tapping the APK file
+5. **Launch** the app and start managing your accounts!
+
+### **Development Setup**
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/papilo-topato/AccountsManagerApplication.git
+   git clone https://github.com/raghramks/AccountsManagerApplication.git
    cd AccountsManagerApplication
    ```
 
@@ -189,12 +204,11 @@ interface ProjectRepository {
    ./gradlew installDebug
    ```
 
-### **Development Setup**
-
-1. **Enable Developer Options** on your Android device
-2. **Enable USB Debugging**
-3. **Connect device** via USB or use Android Emulator
-4. **Build and install** the debug APK
+### **Prerequisites**
+- Android Studio Arctic Fox (2020.3.1) or later
+- Android SDK 26 (Android 8.0) or higher
+- Kotlin 1.9.0 or later
+- Gradle 8.0 or later
 
 ## 📋 Usage Guide
 
@@ -349,9 +363,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Developer
 
-**Papilo-Topato**
-- **GitHub**: [@papilo-topato](https://github.com/papilo-topato)
-- **Project**: [Accounts Manager Application](https://github.com/papilo-topato/AccountsManagerApplication)
+**Raghram K S**
+- **GitHub**: [@raghramks](https://github.com/raghramks)
+- **Project**: [Accounts Manager Application](https://github.com/raghramks/AccountsManagerApplication)
+- **Version**: v1.0 (Completed)
 
 ## 🙏 Acknowledgments
 
@@ -384,7 +399,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 [![GitHub stars](https://img.shields.io/github/stars/papilo-topato/AccountsManagerApplication?style=social)](https://github.com/papilo-topato/AccountsManagerApplication/stargazers)
 
-**Made with ❤️ by [Papilo-Topato](https://github.com/papilo-topato)**
+**Made with ❤️ by [Raghram K S](https://github.com/raghramks)**
 
 </div>
 

@@ -1,5 +1,8 @@
 package com.example.accountsmanagerapplication
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -28,13 +31,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("AppStartup", "MainActivity.onCreate() called")
-        
+
         try {
             enableEdgeToEdge()
-            CrashLogger.logInfo(this, "MainActivity started successfully")
+            
+            // Create notification channel for exports
+            createNotificationChannel()
+            
+            // Defer crash logging to avoid blocking startup
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                CrashLogger.logInfo(this, "MainActivity started successfully")
+            }
         } catch (e: Exception) {
-            CrashLogger.logError(this, "Failed to initialize MainActivity", e)
+            // Log error but don't block startup
+            Log.e("AppStartup", "Failed to initialize MainActivity", e)
         }
+        
         setContent {
             val themeStateManager = remember { ThemeStateManager() }
             var showSplash by remember { mutableStateOf(true) }
@@ -52,6 +64,18 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+    
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "export_channel_id", 
+                "File Exports", 
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(channel)
         }
     }
 }

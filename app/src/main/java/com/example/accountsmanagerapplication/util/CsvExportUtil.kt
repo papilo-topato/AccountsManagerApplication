@@ -48,28 +48,29 @@ object CsvExportUtil {
         project: ProjectEntity,
         transactions: List<TransactionEntity>
     ): String {
-        val sb = StringBuilder()
-        sb.appendLine("Date,Time,Title,Category,Credit,Debit,Running Balance")
-        var runningMinor = 0L
-        transactions.sortedBy { it.timestampEpochMs }.forEach { t ->
-            runningMinor += (t.creditAmount - t.debitAmount)
-            val date = Date(t.timestampEpochMs)
-            val credit = minorToDecimalString(t.creditAmount)
-            val debit = minorToDecimalString(t.debitAmount)
-            val running = minorToDecimalString(runningMinor)
-            sb.appendLine(
-                listOf(
-                    dateFmt.format(date),
-                    timeFmt.format(date),
-                    csv(t.title),
-                    csv("") /* category name not implemented yet */, 
-                    credit,
-                    debit,
-                    running
-                ).joinToString(",")
-            )
+        val header = "Date,Time,Title,Category,Credit,Debit,Running Balance"
+        var runningBalance = 0L // Stored as minor units (cents/paise)
+
+        val rows = transactions.sortedBy { it.timestampEpochMs }.map { txn ->
+            val creditAmount = txn.creditAmount
+            val debitAmount = txn.debitAmount
+            runningBalance += creditAmount - debitAmount
+
+            val date = dateFmt.format(Date(txn.timestampEpochMs))
+            val time = timeFmt.format(Date(txn.timestampEpochMs))
+            val title = "\"${txn.title.replace("\"", "\"\"")}\"" // Escape quotes
+            val category = "\"${txn.categoryId?.toString() ?: ""}\""
+            val credit = String.format(java.util.Locale.US, "%.2f", creditAmount / 100.0)
+            val debit = String.format(java.util.Locale.US, "%.2f", debitAmount / 100.0)
+            val balance = String.format(java.util.Locale.US, "%.2f", runningBalance / 100.0)
+
+            "$date,$time,$title,$category,$credit,$debit,$balance"
         }
-        return sb.toString()
+
+        return buildString {
+            appendLine(header)
+            rows.forEach { appendLine(it) }
+        }
     }
 
     private fun minorToDecimalString(minor: Long): String {

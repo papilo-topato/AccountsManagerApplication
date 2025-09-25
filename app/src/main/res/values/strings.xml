@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Accounts Manager</string>
-    <string name="developer_credit">Developed by Papilo-Topato</string>
+    <string name="developer_credit">Developed by Raghuram K S</string>
+    <string name="developer_location">Built in Bengaluru 💜</string>
 </resources>

@@ -38,9 +38,9 @@ fun SplashScreen(
 ) {
     var isLoadingComplete by remember { mutableStateOf(false) }
     
-    // Quick splash - just 1 second total
+    // Ultra-quick splash for low-end devices
     LaunchedEffect(Unit) {
-        delay(1000) // Very short delay for splash
+        delay(500) // Reduced to 500ms for faster launch
         isLoadingComplete = true
     }
     
@@ -93,6 +93,14 @@ fun SplashScreen(
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 4.dp)
+            )
+            
+            Text(
+                text = stringResource(id = R.string.developer_location),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 2.dp)
             )
             
             // Simple loading indicator

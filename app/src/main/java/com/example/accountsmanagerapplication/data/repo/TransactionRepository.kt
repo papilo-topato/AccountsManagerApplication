@@ -57,6 +57,8 @@ class TransactionRepository(
 
     suspend fun delete(entity: TransactionEntity) = transactionDao.delete(entity)
 
+    suspend fun deleteTransactionsForProject(projectId: Long) = transactionDao.deleteByProject(projectId)
+
     fun observeProjectBalances(): Flow<List<ProjectBalanceRow>> = transactionDao.observeProjectBalances()
 
     fun observeTransactionsForProject(projectId: Long): Flow<List<TransactionEntity>> =
