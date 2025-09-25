@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -71,11 +70,9 @@ fun AddTransactionDialog(
     val dialogTitle = if (isIncome) "Add Credit / Income" else "Add Debit / Expense"
     val buttonColor = if (isIncome) SuccessGreen else ErrorRed
     
-    // Date and time state
+    // Date state
     var selectedDate by remember { mutableStateOf(Calendar.getInstance()) }
     var showDatePicker by remember { mutableStateOf(false) }
-    var showTimePicker by remember { mutableStateOf(false) }
-    var useCustomTime by remember { mutableStateOf(false) }
     
     // Calculator state
     val calculatorViewModel = remember { CalculatorViewModel() }
@@ -85,8 +82,7 @@ fun AddTransactionDialog(
     val interactionSource = remember { MutableInteractionSource() }
     val isAmountFieldFocused by interactionSource.collectIsFocusedAsState()
     
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     
     // Validation
     val isValid = amount.isNotBlank() && title.isNotBlank()
@@ -186,7 +182,7 @@ fun AddTransactionDialog(
                 OutlinedTextField(
                     value = dateFormat.format(selectedDate.time),
                     onValueChange = { },
-                    label = { Text("Date (DD-MM-YYYY)", color = MaterialTheme.colorScheme.onSurface) },
+                    label = { Text("Date (dd/MM/yyyy)", color = MaterialTheme.colorScheme.onSurface) },
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -198,46 +194,6 @@ fun AddTransactionDialog(
                         }
                     }
                 )
-
-                Spacer(modifier = Modifier.padding(12.dp))
-
-                // Time Field with Clock Icon (Optional)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = if (useCustomTime) timeFormat.format(selectedDate.time) else "Current Time",
-                        onValueChange = { },
-                        label = { Text("Time (Optional)", color = MaterialTheme.colorScheme.onSurface) },
-                        singleLine = true,
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { 
-                                useCustomTime = true
-                                showTimePicker = true 
-                            },
-                        readOnly = true,
-                        trailingIcon = {
-                            IconButton(onClick = { 
-                                useCustomTime = true
-                                showTimePicker = true 
-                            }) {
-                                Icon(Icons.Default.Schedule, contentDescription = "Select Time")
-                            }
-                        }
-                    )
-                    
-                    if (useCustomTime) {
-                        IconButton(onClick = { 
-                            useCustomTime = false
-                            selectedDate = Calendar.getInstance()
-                        }) {
-                            Icon(Icons.Default.Close, contentDescription = "Use Current Time")
-                        }
-                    }
-                }
 
                 Spacer(modifier = Modifier.padding(12.dp))
 
@@ -295,17 +251,6 @@ fun AddTransactionDialog(
         )
     }
     
-    // Time Picker Dialog
-    if (showTimePicker) {
-        TimePickerDialog(
-            initialTime = selectedDate,
-            onTimeSelected = { calendar ->
-                selectedDate = calendar
-                showTimePicker = false
-            },
-            onDismiss = { showTimePicker = false }
-        )
-    }
     
     // Calculator Dialog
     if (showCalculator) {
@@ -337,7 +282,7 @@ fun DatePickerDialog(
         text = {
             Column {
                 Text(
-                    text = "Selected: ${SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(selectedDate.time)}",
+                    text = "Selected: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(selectedDate.time)}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -392,73 +337,6 @@ fun DatePickerDialog(
         },
         confirmButton = {
             Button(onClick = { onDateSelected(selectedDate) }) {
-                Text("OK")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
-fun TimePickerDialog(
-    initialTime: Calendar,
-    onTimeSelected: (Calendar) -> Unit,
-    onDismiss: () -> Unit
-) {
-    var selectedTime by remember { mutableStateOf(initialTime) }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Select Time", color = MaterialTheme.colorScheme.onSurface) },
-        text = {
-            Column {
-                Text(
-                    text = "Selected: ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(selectedTime.time)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                
-                // Simple time input fields
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = selectedTime.get(Calendar.HOUR_OF_DAY).toString(),
-                        onValueChange = { hour ->
-                            hour.toIntOrNull()?.let { h ->
-                                if (h in 0..23) {
-                                    selectedTime.set(Calendar.HOUR_OF_DAY, h)
-                                }
-                            }
-                        },
-                        label = { Text("Hour", color = MaterialTheme.colorScheme.onSurface) },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    )
-                    OutlinedTextField(
-                        value = selectedTime.get(Calendar.MINUTE).toString(),
-                        onValueChange = { minute ->
-                            minute.toIntOrNull()?.let { m ->
-                                if (m in 0..59) {
-                                    selectedTime.set(Calendar.MINUTE, m)
-                                }
-                            }
-                        },
-                        label = { Text("Minute", color = MaterialTheme.colorScheme.onSurface) },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            Button(onClick = { onTimeSelected(selectedTime) }) {
                 Text("OK")
             }
         },

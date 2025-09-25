@@ -56,15 +56,23 @@ class ExporterService(private val context: Context) {
 
     private fun showSaveNotification(fileName: String, uri: Uri) {
         val notificationManager = NotificationManagerCompat.from(context)
-        val notification = NotificationCompat.Builder(context, "export_channel_id")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("Export Successful")
-            .setContentText("$fileName saved to Downloads.")
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-            .build()
+        
+        // Check if notifications are enabled
+        if (notificationManager.areNotificationsEnabled()) {
+            val notification = NotificationCompat.Builder(context, "export_channel_id")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Export Successful")
+                .setContentText("$fileName saved to Downloads.")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true)
+                .build()
 
-        notificationManager.notify(1, notification)
+            try {
+                notificationManager.notify(1, notification)
+            } catch (e: SecurityException) {
+                android.util.Log.w("ExporterService", "Failed to show notification: ${e.message}")
+            }
+        }
     }
 
     private fun launchShareIntent(uri: Uri) {

@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
                             onLoadingComplete = { showSplash = false }
                         )
                     } else {
-                        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
                             AppNavHost()
                         }
                     }

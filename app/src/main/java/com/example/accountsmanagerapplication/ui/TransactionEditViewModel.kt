@@ -36,11 +36,18 @@ class TransactionEditViewModel(
     private val _notes = MutableStateFlow("")
     val notes: StateFlow<String> = _notes.asStateFlow()
 
-    fun onAmountChange(value: String) { _amount.value = value }
-    fun onTitleChange(value: String) { _title.value = value }
-    fun onNotesChange(value: String) { _notes.value = value }
+    private val _date = MutableStateFlow("")
+    val date: StateFlow<String> = _date.asStateFlow()
 
-    fun isValid(): Boolean = _amount.value.isNotBlank() && _title.value.isNotBlank()
+    fun onAmountChange(value: String) { _amount.value = value }
+    fun onTitleChange(value: String) { 
+        _title.value = value 
+        android.util.Log.d("TransactionEditViewModel", "Title changed to: $value")
+    }
+    fun onNotesChange(value: String) { _notes.value = value }
+    fun onDateChange(value: String) { _date.value = value }
+
+    fun isValid(): Boolean = _amount.value.isNotBlank() && _title.value.isNotBlank() && _date.value.isNotBlank()
 
     private fun parseAmountMinor(amountString: String): Long? {
         val trimmed = amountString.trim()
@@ -59,6 +66,15 @@ class TransactionEditViewModel(
         }
     }
 
+    private fun parseDateToEpoch(dateString: String): Long? {
+        return try {
+            val sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+            sdf.parse(dateString)?.time
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     init {
         if (isEditMode) {
             val id = checkNotNull(transactionIdArg)
@@ -69,8 +85,15 @@ class TransactionEditViewModel(
                     _amount.value = String.format("%d.%02d", amt / 100, amt % 100)
                     _title.value = entity.title
                     _notes.value = entity.notes ?: ""
+                    // Format date as dd/MM/yyyy
+                    val sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+                    _date.value = sdf.format(java.util.Date(entity.timestampEpochMs))
                 }
             }
+        } else {
+            // Set current date for new transactions
+            val sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+            _date.value = sdf.format(java.util.Date())
         }
     }
 
@@ -78,6 +101,7 @@ class TransactionEditViewModel(
         val amountMinor = parseAmountMinor(_amount.value) ?: return
         val title = _title.value.trim()
         val notes = _notes.value.trim().ifEmpty { null }
+        val timestampEpochMs = parseDateToEpoch(_date.value) ?: return
         if (title.isBlank()) return
         viewModelScope.launch {
             if (isEditMode) {
@@ -87,6 +111,7 @@ class TransactionEditViewModel(
                     val updated = existing.copy(
                         title = title,
                         notes = notes,
+                        timestampEpochMs = timestampEpochMs,
                         creditAmount = if (existing.creditAmount > 0) amountMinor else 0,
                         debitAmount = if (existing.debitAmount > 0) amountMinor else 0
                     )
@@ -94,9 +119,9 @@ class TransactionEditViewModel(
                 }
             } else {
                 if (isIncome) {
-                    txnRepo.addIncome(projectId = projectId, amountMinor = amountMinor, title = title, notes = notes)
+                    txnRepo.addIncome(projectId = projectId, amountMinor = amountMinor, title = title, notes = notes, timestampEpochMs = timestampEpochMs)
                 } else {
-                    txnRepo.addExpense(projectId = projectId, amountMinor = amountMinor, title = title, notes = notes)
+                    txnRepo.addExpense(projectId = projectId, amountMinor = amountMinor, title = title, notes = notes, timestampEpochMs = timestampEpochMs)
                 }
             }
         }

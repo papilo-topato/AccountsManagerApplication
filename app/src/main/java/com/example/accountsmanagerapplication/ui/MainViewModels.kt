@@ -13,9 +13,13 @@ import com.example.accountsmanagerapplication.di.AppModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.example.accountsmanagerapplication.util.formatCurrencyMinor
 
 class ProjectListViewModel(application: Application) : AndroidViewModel(application) {
     private val db = AppModule.provideDatabase(application)
@@ -69,6 +73,8 @@ data class ProjectSummary(
     val balance: Long
 )
 
+enum class SearchFilter { TITLE, AMOUNT }
+
 
 class ProjectDetailViewModel(
     application: Application,
@@ -105,6 +111,53 @@ class ProjectDetailViewModel(
     val runningBalance: StateFlow<Long> =
         transactions.map { list -> list.sumOf { it.creditAmount - it.debitAmount } }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0L)
+
+    // Search functionality
+    private val _isSearchActive = MutableStateFlow(false)
+    val isSearchActive: StateFlow<Boolean> = _isSearchActive.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    private val _searchFilter = MutableStateFlow(SearchFilter.TITLE)
+    val searchFilter: StateFlow<SearchFilter> = _searchFilter.asStateFlow()
+
+    // Filtered transactions based on search
+    val filteredTransactions: StateFlow<List<com.example.accountsmanagerapplication.data.TransactionEntity>> =
+        combine(
+            transactions,
+            searchQuery,
+            searchFilter,
+            isSearchActive
+        ) { transactionList, query, filter, isActive ->
+            if (!isActive || query.isBlank()) {
+                transactionList
+            } else {
+                when (filter) {
+                    SearchFilter.TITLE -> transactionList.filter {
+                        it.title.contains(query, ignoreCase = true)
+                    }
+                    SearchFilter.AMOUNT -> transactionList.filter {
+                        val formattedCredit = formatCurrencyMinor(it.creditAmount)
+                        val formattedDebit = formatCurrencyMinor(it.debitAmount)
+                        formattedCredit.contains(query) || formattedDebit.contains(query)
+                    }
+                }
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // Search control functions
+    fun onToggleSearch() {
+        _isSearchActive.value = !_isSearchActive.value
+    }
+
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun setSearchFilter(filter: SearchFilter) {
+        _searchFilter.value = filter
+    }
 }
 
 

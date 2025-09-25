@@ -9,14 +9,13 @@ import java.util.Locale
 
 object CsvExportUtil {
     private val dateFmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    private val timeFmt = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     fun generateAllProjectsCsv(
         projects: List<ProjectBalanceRow>,
         transactionsByProject: Map<Long, List<TransactionEntity>>
     ): String {
         val sb = StringBuilder()
-        sb.appendLine("Project Name,Date,Time,Title,Category,Credit,Debit,Running Balance")
+        sb.appendLine("Project Name,Date,Title,Category,Credit,Debit,Running Balance")
         projects.forEach { project ->
             val txns = (transactionsByProject[project.projectId] ?: emptyList())
                 .sortedBy { it.timestampEpochMs }
@@ -31,7 +30,6 @@ object CsvExportUtil {
                     listOf(
                         csv(project.name),
                         dateFmt.format(date),
-                        timeFmt.format(date),
                         csv(t.title),
                         csv("") /* category name not implemented yet */, 
                         credit,
@@ -48,7 +46,7 @@ object CsvExportUtil {
         project: ProjectEntity,
         transactions: List<TransactionEntity>
     ): String {
-        val header = "Date,Time,Title,Category,Credit,Debit,Running Balance"
+        val header = "Date,Title,Category,Credit,Debit,Running Balance"
         var runningBalance = 0L // Stored as minor units (cents/paise)
 
         val rows = transactions.sortedBy { it.timestampEpochMs }.map { txn ->
@@ -57,14 +55,13 @@ object CsvExportUtil {
             runningBalance += creditAmount - debitAmount
 
             val date = dateFmt.format(Date(txn.timestampEpochMs))
-            val time = timeFmt.format(Date(txn.timestampEpochMs))
             val title = "\"${txn.title.replace("\"", "\"\"")}\"" // Escape quotes
             val category = "\"${txn.categoryId?.toString() ?: ""}\""
             val credit = String.format(java.util.Locale.US, "%.2f", creditAmount / 100.0)
             val debit = String.format(java.util.Locale.US, "%.2f", debitAmount / 100.0)
             val balance = String.format(java.util.Locale.US, "%.2f", runningBalance / 100.0)
 
-            "$date,$time,$title,$category,$credit,$debit,$balance"
+            "$date,$title,$category,$credit,$debit,$balance"
         }
 
         return buildString {

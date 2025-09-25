@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,12 +38,14 @@ fun TransactionEditScreen(navController: NavController, vm: TransactionEditViewM
     val amount by vm.amount.collectAsState()
     val title by vm.title.collectAsState()
     val notes by vm.notes.collectAsState()
+    val date by vm.date.collectAsState()
     val topTitle = when {
         vm.isEditMode -> "Edit Transaction"
         vm.isIncome -> "Add Income"
         else -> "Add Expense"
     }
     var showConfirm by remember { mutableStateOf(false) }
+    var shouldNavigateBack by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -78,8 +81,23 @@ fun TransactionEditScreen(navController: NavController, vm: TransactionEditViewM
             )
             OutlinedTextField(
                 value = title,
-                onValueChange = vm::onTitleChange,
+                onValueChange = { newValue ->
+                    android.util.Log.d("TransactionEditScreen", "Title field changed to: $newValue")
+                    vm.onTitleChange(newValue)
+                },
                 label = { Text("Title") },
+                enabled = true,
+                singleLine = true,
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = date,
+                onValueChange = vm::onDateChange,
+                label = { Text("Date (dd/MM/yyyy)") },
+                enabled = true,
+                singleLine = true,
                 modifier = Modifier
                     .padding(top = 12.dp)
                     .fillMaxWidth()
@@ -95,7 +113,7 @@ fun TransactionEditScreen(navController: NavController, vm: TransactionEditViewM
             Button(
                 onClick = {
                     vm.saveTransaction()
-                    navController.popBackStack()
+                    shouldNavigateBack = true
                 },
                 enabled = vm.isValid(),
                 modifier = Modifier
@@ -122,6 +140,14 @@ fun TransactionEditScreen(navController: NavController, vm: TransactionEditViewM
                 TextButton(onClick = { showConfirm = false }) { Text("Cancel") }
             }
         )
+    }
+    
+    // Handle navigation after save
+    LaunchedEffect(shouldNavigateBack) {
+        if (shouldNavigateBack) {
+            kotlinx.coroutines.delay(200) // Give time for save to complete
+            navController.popBackStack()
+        }
     }
 }
 

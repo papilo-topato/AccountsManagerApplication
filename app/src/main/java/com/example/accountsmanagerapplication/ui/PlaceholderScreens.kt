@@ -1,96 +1,50 @@
 package com.example.accountsmanagerapplication.ui
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.example.accountsmanagerapplication.ui.theme.SuccessGreen
-import com.example.accountsmanagerapplication.ui.theme.ErrorRed
-import com.example.accountsmanagerapplication.ui.theme.SuccessGreenLight
-import com.example.accountsmanagerapplication.ui.theme.ErrorRedLight
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.example.accountsmanagerapplication.data.TransactionEntity
-import com.example.accountsmanagerapplication.util.formatCurrencyMinor
-import com.example.accountsmanagerapplication.util.CsvExportUtil
-import androidx.compose.ui.platform.LocalContext
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.material3.FilterChip
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.accountsmanagerapplication.data.TransactionEntity
+import com.example.accountsmanagerapplication.ui.theme.ErrorRed
+import com.example.accountsmanagerapplication.ui.theme.SuccessGreen
+import com.example.accountsmanagerapplication.util.CsvExportUtil
 import com.example.accountsmanagerapplication.util.ExporterService
-import java.io.File
+import com.example.accountsmanagerapplication.util.formatCurrencyMinor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.compose.runtime.rememberCoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateProjectScreen(navController: NavController, vm: CreateProjectViewModel = viewModel()) {
     val name by vm.name.collectAsState()
     val description by vm.description.collectAsState()
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -147,30 +101,34 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
     val totalCredit by vm.totalCredit.collectAsState()
     val totalDebit by vm.totalDebit.collectAsState()
     val balance by vm.runningBalance.collectAsState()
-    
+
+    // Search state
+    val isSearchActive by vm.isSearchActive.collectAsState()
+    val searchQuery by vm.searchQuery.collectAsState()
+    val searchFilter by vm.searchFilter.collectAsState()
+    val filteredTransactions by vm.filteredTransactions.collectAsState()
+
     var showAddTransactionDialog by remember { mutableStateOf(false) }
     var transactionType by remember { mutableStateOf("income") }
     var sortOrder by remember { mutableStateOf("newest") } // "newest" or "oldest"
-    
+
     // Collapsible header state
     var isFinancialSummaryExpanded by remember { mutableStateOf(true) }
     val listState = rememberLazyListState()
-    
+
     // Description popup state
     var showDescriptionPopup by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
-            val context = LocalContext.current
-            val shareLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
             CenterAlignedTopAppBar(
                 title = { },
                 navigationIcon = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                         Text(
                             text = project?.name ?: "Project",
@@ -179,7 +137,7 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
                                 .padding(start = 8.dp)
-                                .clickable { 
+                                .clickable {
                                     if (!project?.description.isNullOrBlank()) {
                                         showDescriptionPopup = true
                                     }
@@ -190,7 +148,12 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                 actions = {
                     val context = LocalContext.current
                     val scope = rememberCoroutineScope()
-                    
+
+                    // Search button
+                    IconButton(onClick = { vm.onToggleSearch() }) {
+                        Icon(Icons.Filled.Search, contentDescription = "Search")
+                    }
+
                     // Launcher for the notification permission
                     val notificationPermissionLauncher = rememberLauncherForActivityResult(
                         contract = ActivityResultContracts.RequestPermission()
@@ -201,7 +164,7 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                             Toast.makeText(context, "Permission denied. Notifications will not be shown.", Toast.LENGTH_SHORT).show()
                         }
                     }
-                    
+
                     IconButton(onClick = {
                         // The export logic
                         val projectValue = project // Get the current state value
@@ -213,7 +176,7 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                                     val csvContent = CsvExportUtil.generateSingleProjectCsv(projectValue, transactionsValue)
                                     val exporterService = ExporterService(context)
                                     withContext(Dispatchers.Main) {
-                                       exporterService.exportProject(projectValue.name, csvContent)
+                                        exporterService.exportProject(projectValue.name, csvContent)
                                     }
                                 }
                             }
@@ -228,8 +191,6 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                                     else -> {
                                         // Permission is not granted, request it
                                         notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                                        // Note: You might want to handle the case where the user grants permission
-                                        // by re-triggering the export inside the launcher's callback.
                                     }
                                 }
                             } else {
@@ -240,7 +201,7 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                             Toast.makeText(context, "No data to export.", Toast.LENGTH_SHORT).show()
                         }
                     }) {
-                        Icon(Icons.Default.Upload, contentDescription = "Export Project")
+                        Icon(Icons.Filled.Upload, contentDescription = "Export Project")
                     }
                 }
             )
@@ -252,26 +213,51 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                 .padding(innerPadding)
         ) {
 
+            // Search Bar UI
+            if (isSearchActive) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    // Filter selection chips
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = searchFilter == SearchFilter.TITLE,
+                            onClick = { vm.setSearchFilter(SearchFilter.TITLE) },
+                            label = { Text("Title") }
+                        )
+                        FilterChip(
+                            selected = searchFilter == SearchFilter.AMOUNT,
+                            onClick = { vm.setSearchFilter(SearchFilter.AMOUNT) },
+                            label = { Text("Amount") }
+                        )
+                    }
+                    // Search Text Field
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { vm.onSearchQueryChange(it) },
+                        label = { Text("Search...") },
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            IconButton(onClick = { vm.onSearchQueryChange("") }) {
+                                Icon(Icons.Filled.Clear, contentDescription = "Clear Search")
+                            }
+                        }
+                    )
+                }
+            }
+
             // Track scroll position to auto-expand when scrolling back to top
-            LaunchedEffect(listState.firstVisibleItemIndex) {
+            LaunchedEffect(listState) {
                 // Auto-expand when scrolling back to the very top
                 if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0) {
                     isFinancialSummaryExpanded = true
                 }
             }
-            
+
             val alpha by animateFloatAsState(
                 targetValue = if (isFinancialSummaryExpanded) 1f else 0f,
                 animationSpec = tween(300),
                 label = "financial_summary_alpha"
             )
-            
-            val height by animateFloatAsState(
-                targetValue = if (isFinancialSummaryExpanded) 1f else 0f,
-                animationSpec = tween(300),
-                label = "financial_summary_height"
-            )
-            
+
             if (isFinancialSummaryExpanded || alpha > 0f) {
                 Card(
                     modifier = Modifier
@@ -309,10 +295,10 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = SuccessGreen,
-                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    textAlign = TextAlign.Center
                                 )
                             }
-                            
+
                             // Right Half: Total Debit
                             Column(
                                 modifier = Modifier.weight(1f),
@@ -328,13 +314,13 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = ErrorRed,
-                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    textAlign = TextAlign.Center
                                 )
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.padding(vertical = 8.dp))
-                        
+
                         // Bottom Row: Balance (centered, smaller font)
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -378,27 +364,27 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        
+
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             // Collapse/Expand Arrow
-                            IconButton(onClick = { 
+                            IconButton(onClick = {
                                 isFinancialSummaryExpanded = !isFinancialSummaryExpanded
                             }) {
                                 Icon(
-                                    if (isFinancialSummaryExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                    if (isFinancialSummaryExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
                                     contentDescription = if (isFinancialSummaryExpanded) "Collapse" else "Expand"
                                 )
                             }
-                            
+
                             // Sort Button
-                            IconButton(onClick = { 
+                            IconButton(onClick = {
                                 sortOrder = if (sortOrder == "newest") "oldest" else "newest"
                             }) {
                                 Icon(
-                                    if (sortOrder == "newest") Icons.Default.ArrowDownward else Icons.Default.ArrowUpward, 
+                                    if (sortOrder == "newest") Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward,
                                     contentDescription = "Sort"
                                 )
                             }
@@ -414,9 +400,9 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                     ) {
                         // Add Expense Button - Compact
                         IconButton(
-                            onClick = { 
+                            onClick = {
                                 transactionType = "expense"
-                                showAddTransactionDialog = true 
+                                showAddTransactionDialog = true
                             },
                             modifier = Modifier.weight(1f),
                             colors = IconButtonDefaults.iconButtonColors(
@@ -428,7 +414,7 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Icon(
-                                    Icons.Default.Remove, 
+                                    Icons.Filled.Remove,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onError
                                 )
@@ -440,12 +426,12 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                                 )
                             }
                         }
-                        
+
                         // Add Income Button - Compact
                         IconButton(
-                            onClick = { 
+                            onClick = {
                                 transactionType = "income"
-                                showAddTransactionDialog = true 
+                                showAddTransactionDialog = true
                             },
                             modifier = Modifier.weight(1f),
                             colors = IconButtonDefaults.iconButtonColors(
@@ -457,7 +443,7 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Icon(
-                                    Icons.Default.Add, 
+                                    Icons.Filled.Add,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onPrimary
                                 )
@@ -491,12 +477,12 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            textAlign = TextAlign.Center
                         )
                     }
 
                     // Transaction List
-                    if (transactions.isEmpty()) {
+                    if (filteredTransactions.isEmpty()) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -504,7 +490,7 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "No transactions yet.",
+                                text = if (searchQuery.isNotEmpty()) "No transactions found matching '$searchQuery'." else "No transactions yet.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -512,11 +498,10 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                     } else {
                         // Sort transactions based on sortOrder
                         val sortedTransactions = if (sortOrder == "newest") {
-                            transactions.sortedByDescending { it.timestampEpochMs }
+                            filteredTransactions.sortedByDescending { it.timestampEpochMs }
                         } else {
-                            transactions.sortedBy { it.timestampEpochMs }
+                            filteredTransactions.sortedBy { it.timestampEpochMs }
                         }
-
                         LazyColumn(
                             state = listState,
                             modifier = Modifier
@@ -526,8 +511,7 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                         ) {
                             items(sortedTransactions) { txn ->
                                 val pid = project?.id
-                                
-                                TransactionRow(txn, 0L) { // runningBalance not used anymore
+                                TransactionRow(txn) {
                                     if (pid != null) {
                                         navController.navigate("project/${pid}/edit_transaction/${txn.id}")
                                     }
@@ -553,9 +537,9 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
 
     // Description Popup
     if (showDescriptionPopup && !project?.description.isNullOrBlank()) {
-        androidx.compose.material3.AlertDialog(
+        AlertDialog(
             onDismissRequest = { showDescriptionPopup = false },
-            title = { 
+            title = {
                 Text(
                     text = project?.name ?: "Project",
                     fontWeight = FontWeight.Bold
@@ -568,7 +552,7 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
                 )
             },
             confirmButton = {
-                androidx.compose.material3.TextButton(
+                TextButton(
                     onClick = { showDescriptionPopup = false }
                 ) {
                     Text("Close")
@@ -576,78 +560,16 @@ fun ProjectDetailScreen(navController: NavController, vm: ProjectDetailViewModel
             }
         )
     }
-
 }
 
 @Composable
-private fun HeaderStats(totalCredit: Long, totalDebit: Long, balance: Long) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        StatCard(
-            title = "Total Credit", 
-            value = formatCurrencyMinor(totalCredit), 
-            backgroundColor = SuccessGreenLight,
-            textColor = SuccessGreen,
-            modifier = Modifier.weight(1f)
-        )
-        StatCard(
-            title = "Total Debit", 
-            value = formatCurrencyMinor(totalDebit), 
-            backgroundColor = ErrorRedLight,
-            textColor = ErrorRed,
-            modifier = Modifier.weight(1f)
-        )
-        val balColor = if (balance >= 0) SuccessGreen else ErrorRed
-        val balBackgroundColor = if (balance >= 0) SuccessGreenLight else ErrorRedLight
-        StatCard(
-            title = "Balance", 
-            value = formatCurrencyMinor(balance), 
-            backgroundColor = balBackgroundColor,
-            textColor = balColor,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-private fun StatCard(
-    title: String, 
-    value: String, 
-    backgroundColor: Color, 
-    textColor: Color, 
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = textColor
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@Composable
-private fun TransactionRow(txn: TransactionEntity, runningBalance: Long, onClick: () -> Unit) {
+private fun TransactionRow(txn: TransactionEntity, onClick: () -> Unit) {
     val isCredit = txn.creditAmount > 0
     val amount = if (isCredit) txn.creditAmount else txn.debitAmount
     val backgroundColor = if (isCredit) SuccessGreen.copy(alpha = 0.1f) else ErrorRed.copy(alpha = 0.1f)
     val borderColor = if (isCredit) SuccessGreen.copy(alpha = 0.3f) else ErrorRed.copy(alpha = 0.3f)
     val textColor = if (isCredit) SuccessGreen else ErrorRed
-    
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -662,7 +584,7 @@ private fun TransactionRow(txn: TransactionEntity, runningBalance: Long, onClick
                     shape = RoundedCornerShape(0.dp)
                 )
         )
-        
+
         // Left border for color indication
         Box(
             modifier = Modifier
@@ -673,10 +595,10 @@ private fun TransactionRow(txn: TransactionEntity, runningBalance: Long, onClick
                     shape = RoundedCornerShape(0.dp)
                 )
         )
-        
+
         Row(
             modifier = Modifier
-        .fillMaxWidth()
+                .fillMaxWidth()
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -698,7 +620,7 @@ private fun TransactionRow(txn: TransactionEntity, runningBalance: Long, onClick
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            
+
             // Amount Column - More centered
             Text(
                 text = formatCurrencyMinor(amount),
@@ -706,10 +628,8 @@ private fun TransactionRow(txn: TransactionEntity, runningBalance: Long, onClick
                 fontWeight = FontWeight.Bold,
                 color = textColor,
                 modifier = Modifier.weight(1f),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = TextAlign.Center
             )
         }
     }
 }
-
-
